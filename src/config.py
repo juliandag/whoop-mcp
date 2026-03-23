@@ -3,22 +3,31 @@ Configuration for WHOOP MCP Server
 """
 import os
 from typing import Optional
+from dotenv import load_dotenv
 
-# OAuth application endpoints
-OAUTH_BASE_URL = "https://personal-integrations-462307.uc.r.appspot.com"
-OAUTH_AUTH_URL = f"{OAUTH_BASE_URL}/"
-OAUTH_TOKEN_URL = f"{OAUTH_BASE_URL}/api/get-tokens"
-OAUTH_REFRESH_URL = f"{OAUTH_BASE_URL}/api/refresh-token"
+# Load .env from project root
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+
+# OAuth credentials (from .env)
+WHOOP_CLIENT_ID = os.getenv('WHOOP_CLIENT_ID', '')
+WHOOP_CLIENT_SECRET = os.getenv('WHOOP_CLIENT_SECRET', '')
+WHOOP_REDIRECT_URI = os.getenv('WHOOP_REDIRECT_URI', 'http://localhost:8080/callback')
+
+# WHOOP OAuth endpoints (direct)
+OAUTH_AUTH_URL = "https://api.prod.whoop.com/oauth/oauth2/auth"
+OAUTH_TOKEN_URL = "https://api.prod.whoop.com/oauth/oauth2/token"
 
 # WHOOP API configuration
 WHOOP_API_BASE = "https://api.prod.whoop.com/developer/v1"
 WHOOP_SCOPES = [
     "read:profile",
-    "read:workout", 
+    "read:workout",
     "read:sleep",
     "read:recovery",
     "offline"
 ]
+
+OAUTH_REFRESH_URL = OAUTH_TOKEN_URL  # Same endpoint for refresh
 
 # Storage configuration
 import os

@@ -15,7 +15,9 @@ from config import (
     ENCRYPTION_KEY_FILE,
     OAUTH_TOKEN_URL,
     OAUTH_REFRESH_URL,
-    REQUEST_TIMEOUT
+    REQUEST_TIMEOUT,
+    WHOOP_CLIENT_ID,
+    WHOOP_CLIENT_SECRET,
 )
 
 logger = logging.getLogger(__name__)
@@ -152,29 +154,34 @@ class TokenManager:
         return None
     
     def refresh_tokens(self, refresh_token: str) -> Optional[Dict[str, Any]]:
-        """Refresh access token using refresh token"""
+        """Refresh access token using refresh token via WHOOP OAuth"""
         try:
             import requests
-            
+
             response = requests.post(
                 OAUTH_REFRESH_URL,
-                json={'refresh_token': refresh_token},
-                timeout=REQUEST_TIMEOUT
+                data={
+                    'grant_type': 'refresh_token',
+                    'refresh_token': refresh_token,
+                    'client_id': WHOOP_CLIENT_ID,
+                    'client_secret': WHOOP_CLIENT_SECRET,
+                },
+                headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                timeout=REQUEST_TIMEOUT,
             )
-            
+
             if response.status_code == 200:
                 token_data = response.json()
-                if token_data.get('success'):
-                    # Save new tokens
-                    self.save_tokens(token_data)
-                    return token_data
-                else:
-                    logger.error(f"Token refresh failed: {token_data.get('error')}")
-                    return None
+                self.save_tokens(token_data)
+                # Return decrypted tokens for immediate use
+                return {
+                    'access_token': token_data['access_token'],
+                    'refresh_token': token_data.get('refresh_token', refresh_token),
+                }
             else:
-                logger.error(f"Token refresh failed with status {response.status_code}")
+                logger.error(f"Token refresh failed with status {response.status_code}: {response.text}")
                 return None
-                
+
         except Exception as e:
             logger.error(f"Error refreshing tokens: {e}")
             return None
