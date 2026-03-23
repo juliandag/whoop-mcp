@@ -18,7 +18,7 @@ OAUTH_AUTH_URL = "https://api.prod.whoop.com/oauth/oauth2/auth"
 OAUTH_TOKEN_URL = "https://api.prod.whoop.com/oauth/oauth2/token"
 
 # WHOOP API configuration
-WHOOP_API_BASE = "https://api.prod.whoop.com/developer/v1"
+WHOOP_API_BASE = "https://api.prod.whoop.com/developer/v2"
 WHOOP_SCOPES = [
     "read:profile",
     "read:workout",
